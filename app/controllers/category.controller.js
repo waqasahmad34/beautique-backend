@@ -159,6 +159,39 @@ class CategoryController extends BaseController {
     }
   };
 
+  addTags = async (req, res, next) => {
+    const { tagName } = req.body;
+    try {
+      const userExist = await User.findOne({ _id: req.user.id });
+      if (!userExist) {
+		  return res.status(400).json({ msg: Constants.messages.userNotFound });
+      }
+      const tag = new SearchTag({
+        tagName,
+        user: req.user.id,
+      });
+      await tag.save();
+      return res.status(200).json({ msg: Constants.messages.success });
+    } catch (err) {
+      err.status = 400;
+      next(err);
+    }
+  };
+
+  getTags = async (req, res, next) => {
+    try {
+      const userExist = await User.findOne({ _id: req.user.id });
+      if (!userExist) {
+		  return res.status(400).json({ msg: Constants.messages.userNotFound });
+      }
+      const tags = await SearchTag.find({ user: req.user.id });
+      return res.status(200).json({ msg: Constants.messages.success, tags: tags });
+    } catch (err) {
+      err.status = 400;
+      next(err);
+    }
+  };
+
   addSupervisionRequest = async (req, res, next) => {
     const { name, email, highlightId, categoryId, user, imageLink, imageUser } = req.body;
     try {
@@ -498,6 +531,43 @@ class CategoryController extends BaseController {
 	      return res.status(404).json({ msg: Constants.messages.noCategoryFound });
 		  }
 		  return res.status(200).json({ msg: Constants.messages.success, categories: categories });
+	    } catch (err) {
+	      err.status = 400;
+	      next(err);
+	    }
+  };
+
+    getAllStatusUserImagesBasedOnType = async (req, res, next) => {
+	    const { type } = req.body;
+	    try {
+	    const categoriesActive = await Category.find({
+	      $and: [
+			  { type: type },
+			  { isActive: 'active' },
+	      ],
+		  }).sort({ createdAt: -1 }).populate('user', 'firstName lastName profileImage company description supervision');
+        const categoriesBlock = await Category.find({
+	      $and: [
+			  { type: type },
+			  { isActive: 'block' },
+	      ],
+        }).sort({ createdAt: -1 }).populate('user', 'firstName lastName profileImage company description supervision');
+        const categoriesPending = await Category.find({
+	      $and: [
+			  { type: type },
+			  { isActive: 'pending' },
+	      ],
+		  }).sort({ createdAt: -1 }).populate('user', 'firstName lastName profileImage company description supervision');
+        if (!categoriesActive) {
+	      return res.status(404).json({ msg: Constants.messages.noCategoryFound });
+        }
+        if (!categoriesBlock) {
+	      return res.status(404).json({ msg: Constants.messages.noCategoryFound });
+        }
+        if (!categoriesPending) {
+	      return res.status(404).json({ msg: Constants.messages.noCategoryFound });
+		  }
+		  return res.status(200).json({ msg: Constants.messages.success, active: categoriesActive, block: categoriesBlock, pending: categoriesPending });
 	    } catch (err) {
 	      err.status = 400;
 	      next(err);

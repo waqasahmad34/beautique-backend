@@ -72,6 +72,7 @@ routes.get('/api/users/getUserInActiveImages', [authenticate, adminAuth], Catego
 routes.get('/api/users/getUserPendingImages', [authenticate, adminAuth], CategoryController.getUserPendingImages);
 routes.get('/api/users/getActiveUserImages', [authenticate, adminAuth], CategoryController.getActiveUserImages);
 routes.post('/api/users/getAllUserImagesBasedOnType', CategoryController.getAllUserImagesBasedOnType);
+routes.post('/api/users/getAllStatusUserImagesBasedOnType', [authenticate, adminAuth], CategoryController.getAllStatusUserImagesBasedOnType);
 routes.post('/api/users/getPerspectiveImages', CategoryController.getPerspectiveImages);
 routes.post('/api/users/addSupervisionRequest', CategoryController.addSupervisionRequest);
 routes.get('/api/users/getOpenedSupervisionRequests', [authenticate, adminAuth], CategoryController.getOpenedSupervisionRequests);
@@ -88,6 +89,8 @@ routes.get('/api/users/getActiveUsersList', [authenticate, adminAuth], UsersCont
 routes.get('/api/users/getInActiveUsersList', [authenticate, adminAuth], UsersController.getInActiveUsersList);
 routes.post('/api/users/deleteUsers', [authenticate, adminAuth], UsersController.deleteUsers);
 routes.get('/api/users/stats', [authenticate, adminAuth], UsersController.adminStats);
+routes.get('/api/users/getTags', [authenticate, adminAuth], CategoryController.getTags);
+routes.post('/api/users/addTags', [authenticate, adminAuth], CategoryController.addTags);
 
 
 // ContactUs Api's

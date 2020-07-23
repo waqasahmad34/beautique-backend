@@ -11,6 +11,11 @@ const searchTag = new Schema(
         type: Date,
         default: new Date(),
       },
+      user: {
+        type: Schema.Types.ObjectId,
+        ref: 'user',
+        default: null,
+      },
     });
 
 const SearchTag = mongoose.model('searchTag', searchTag);
