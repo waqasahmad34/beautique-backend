@@ -6,7 +6,6 @@
 
 import BaseController from './base.controller';
 import User from '../models/user';
-import DefaultCategory from '../models/defaultCategory';
 import Category from '../models/category';
 import ContactUsStats from '../models/contactUsStats';
 import ContactUs from '../models/contactUs';
@@ -34,8 +33,9 @@ class UsersController extends BaseController {
 	  'titleImage',
 	  'oldPassword',
 	];
-
+	// register user into the databse when come first time
 	register = async (req, res, next) => {
+	  // extract data from body
 	      const {
 	        firstName,
 	    lastName,
@@ -51,11 +51,13 @@ class UsersController extends BaseController {
 	        termsCondition,
 	      } = req.body;
 	      try {
+			  // verify if token is valid
 	    const decode = jwt.verify(req.params.token, Constants.security.sessionSecret);
+	    // if not valid through an error request again
 	        if (!decode) {
 	          return res.status(400).json({ msg: Constants.messages.linkExpire });
 	    }
-
+	    // if token is valid and request from same email where link is sent than allow to rgister
 	    if (decode.id === email) {
 	    // See if user exist with email or register token before
 	    const token = req.params.token;
@@ -110,10 +112,10 @@ class UsersController extends BaseController {
 	      return res.status(200).json({ token: token, user: payload.user });
 	    });
 	  } else {
+		  // through error register with same eamil where link sent
 	      return res.status(400).json({ msg: 'You have to create your account with the email where you got invited by admin!' });
 	  }
 	  } catch (err) {
-		  console.log('error: --', err);
 	    if (err.message === 'jwt expired' || err.message === 'jwt malformed') {
 	      return res.status(400).json({ msg: Constants.messages.linkExpire });
 		  }
@@ -121,18 +123,19 @@ class UsersController extends BaseController {
 		  next(err);
 	  }
 	};
-
+	// login user into the system
 	login = async (req, res, next) => {
 	  const { email, password } = req.body;
 
 	  try {
-	    // See if user exist
+	    // See if user exist with email
 	    const user = await User.findOne({ email });
 	    if (!user) {
 	      return res.status(400).json({ msg: Constants.messages.userInvalidCredentials });
 	    }
-
+	    // check if password match
 	    const isMatch = await bcrypt.compare(password, user.password);
+	    // if not match through error invalid user credentials
 	    if (!isMatch) {
 	      return res.status(400).json({ msg: Constants.messages.userInvalidCredentials });
 	    }
@@ -163,9 +166,10 @@ class UsersController extends BaseController {
 	    next(err);
 	  }
 	};
-
+	// upload user profile image
 	updateProfile = async (req, res, next) => {
 	  try {
+		  // find user by its id
 	    const user = await User.findById({ _id: req.user.id }).select('profileImage');
 	    if (!user) {
 	      return res.status(404).json({ msg: Constants.messages.userNotFound });
@@ -179,10 +183,10 @@ class UsersController extends BaseController {
 	  }
 	};
 
-
+	// update user profile bio data like name address etc
 	updateProfileBioData = async (req, res, next) => {
+	  // filter body data with whitelist data
 	  const params = this.filterParams(req.body, this.whitelist);
-	  console.log('params: ', params);
 	  try {
 		  const user = await User.findById({ _id: req.user.id });
 		  if (!user) {
@@ -194,7 +198,6 @@ class UsersController extends BaseController {
 			  const salt = await bcrypt.genSalt(10);
 			  delete params['oldPassword'];
 			  params['password'] = await bcrypt.hash(params.password, salt);
-			  console.log('params: --inside', params);
 			  const updateUserdata = await User.findByIdAndUpdate({ _id: req.user.id }, { $set: params }, { new: true });
 	        return res.status(200).json({ msg: 'Profile Updated Successfully!', profile: updateUserdata });
 	      }
@@ -213,9 +216,10 @@ class UsersController extends BaseController {
 		  next(err);
 	  }
 	  };
-
+	  // update user cover photo
 	updateCover = async (req, res, next) => {
 	  try {
+		  // find user by its id
 		  const user = await User.findById({ _id: req.user.id }).select('titleImage');
 		  if (!user) {
 	      return res.status(404).json({ msg: Constants.messages.userNotFound });
@@ -229,14 +233,16 @@ class UsersController extends BaseController {
 		  next(err);
 	  }
 	  };
-
+	  // send forget pass email to user
 	sendForgetPassEmail = async (req, res, next) => {
 	  const { email } = req.body;
 	  try {
+		  // find user by its email
 	    const user = await User.findOne({ email: email }).select('firstName lastName email');
 	    if (!user) {
 	      return res.status(404).json({ msg: Constants.messages.userNotFound });
 	    }
+	    // signed a user token by its id
 	    const payload = { id: user._id };
 	    const token = jwt.sign(payload, Constants.security.sessionSecret, {
 	      expiresIn: '2m', // 2 minutes
@@ -249,10 +255,11 @@ class UsersController extends BaseController {
 	    next(err);
 	  }
 	};
-
+	// forget password
 	forgetPassword = async (req, res, next) => {
 	  const { password } = req.body;
 	  try {
+		  // find user by its id
 	    const user = await User.findOne({ _id: req.params.userId }).select('password');
 	    if (!user) {
 	      return res.status(404).json({ msg: Constants.messages.userNotFound });
@@ -275,7 +282,7 @@ class UsersController extends BaseController {
 	    next(err);
 	  }
 	};
-
+	// reset user password
 	resetPassword = async (req, res, next) => {
 	  const { oldPassword, newPassword } = req.body;
 
@@ -304,6 +311,7 @@ class UsersController extends BaseController {
 	    next(err);
 	  }
 	};
+	// get user profile data
 	getUserProfile = async (req, res, next) => {
 	  const { userId } = req.body;
 	  try {
@@ -359,7 +367,7 @@ class UsersController extends BaseController {
 		  next(err);
 	  }
 	  };
-
+	  // get user images
 	  getUserImages = async (req, res, next) => {
 	    const { type, subtype } = req.body;
 	    try {
@@ -384,7 +392,7 @@ class UsersController extends BaseController {
 	      next(err);
 	    }
 	  };
-
+	  // get all newest users with supervision true
 	  getAllowSupervisionUsers = async (req, res, next) => {
 	    try {
 	    const users = await User.find({
@@ -403,9 +411,28 @@ class UsersController extends BaseController {
 	      next(err);
 	    }
 	  };
-
+	  // get all oldest users with supervision true
+	  getAllowSupervisionUsersOldest = async (req, res, next) => {
+	    try {
+	    const users = await User.find({
+	      $and: [
+			  { supervision: true },
+			  { role: { $ne: 'admin' } },
+			  { isActive: true },
+	      ],
+		  }).select('-password').sort({ createdAt: 1 });
+		  if (!users) {
+	      return res.status(404).json({ msg: Constants.messages.userNotFound });
+		  }
+		  return res.status(200).json({ msg: Constants.messages.success, users: users });
+	    } catch (err) {
+	      err.status = 400;
+	      next(err);
+	    }
+	  };
+	// get users profile images
 	getUserProfileImages = async (req, res, next) => {
-	  // remove subtype like nature etc
+	  // extract data from data
 	    const { userId, type } = req.body;
 	    try {
 	        const user = await User.findById({ _id: userId });
@@ -429,8 +456,34 @@ class UsersController extends BaseController {
 	    }
 	  };
 
-	  // Admin Api's
+	  // get all user oldest profile images
+	  getUserProfileImagesOldest = async (req, res, next) => {
+	    // remove subtype like nature etc
+		  const { userId, type } = req.body;
+		  try {
+			  const user = await User.findById({ _id: userId });
+		  if (!user) {
+	        return res.status(400).json({ msg: Constants.messages.userNotFound });
+		  }
+		  const categories = await Category.find({
+	        $and: [
+	          { user: userId },
+	          { type: type },
+	          { isActive: 'active' },
+	        ],
+	      }).sort({ createdAt: 1 }).populate('user', 'firstName lastName profileImage company description supervision');
+	      if (!categories) {
+	        return res.status(404).json({ msg: Constants.messages.noCategoryFound });
+	      }
+	      return res.status(200).json({ msg: Constants.messages.success, categories: categories });
+		  } catch (err) {
+	      err.status = 400;
+	      next(err);
+		  }
+	  };
 
+	  // Admin Api's
+	  // send user register link to our system
   sendRegistrationEmail = async (req, res, next) => {
     const { email } = req.body;
     try {
@@ -450,7 +503,7 @@ class UsersController extends BaseController {
 	  next(err);
     }
   };
-
+  // delete user by admin
   deleteUsers = async (req, res, next) => {
 	  const { userId } = req.body;
     try {
@@ -469,7 +522,7 @@ class UsersController extends BaseController {
 	  next(err);
     }
   };
-
+  // get active userlist by admin
   getActiveUsersList = async (req, res, next) => {
     try {
       const user = await User.findOne({ _id: req.user.id });
@@ -517,17 +570,13 @@ class UsersController extends BaseController {
 	  next(err);
     }
   };
-
+  // get all in active suer list by admin
   getInActiveUsersList = async (req, res, next) => {
     try {
       const user = await User.findOne({ _id: req.user.id });
       if (!user) {
 		  return res.status(400).json({ msg: Constants.messages.userNotFound });
       }
-      //   const users = await User.find({ $and: [{ role: { $ne: 'admin' } }, { isActive: true }] });
-      //   if (!users) {
-      //     return res.status(400).json({ msg: Constants.messages.userNotFound });
-      //   }
       const users = await User.aggregate([
 		  { $match: { $and: [{ role: { $ne: 'admin' } }, { isActive: false }] } },
         { $lookup:
@@ -565,23 +614,7 @@ class UsersController extends BaseController {
 	  next(err);
     }
   };
-
-  acceptAccount = async (req, res, next) => {
-    const { userId } = req.body;
-    try {
-	  const user = await User.findById({ _id: userId }).select('isActive');
-	  if (!user) {
-        return res.status(404).json({ msg: Constants.messages.userNotFound });
-	  }
-	  user.isActive = true;
-	  user.save();
-	  return res.status(200).json({ msg: Constants.messages.accountAcceptSuccess });
-    } catch (err) {
-	  err.status = 400;
-	  next(err);
-    }
-  };
-
+  // activate and deactivate user account
   accountAcceptReject = async (req, res, next) => {
     const { userId, isActive } = req.body;
     try {
@@ -595,23 +628,7 @@ class UsersController extends BaseController {
 	  next(err);
     }
   };
-
-  rejectAccount = async (req, res, next) => {
-    const { userId } = req.body;
-    try {
-	  const user = await User.findById({ _id: userId }).select('isActive');
-	  if (!user) {
-        return res.status(404).json({ msg: Constants.messages.userNotFound });
-	  }
-	  user.isActive = false;
-	  user.save();
-	  return res.status(200).json({ msg: Constants.messages.accountRejectedSuccess });
-    } catch (err) {
-	  err.status = 400;
-	  next(err);
-    }
-  };
-
+  // acive and deactivate user supervision flag
   updateSupervision = async (req, res, next) => {
     const { supervision } = req.body;
     try {
@@ -628,7 +645,7 @@ class UsersController extends BaseController {
 	  next(err);
     }
   };
-
+  // get all the stats alike users count and images count etc by admin
   adminStats = async (req, res, next) => {
     try {
 	  const user = await User.findById({ _id: req.user.id });

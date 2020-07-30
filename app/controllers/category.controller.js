@@ -52,6 +52,7 @@ class CategoryController extends BaseController {
       const category = new Category({
         ...params,
       });
+      // save data into database
       await category.save();
       return res.status(200).json({ msg: Constants.messages.imageUploadSuccess });
     } catch (err) {
@@ -85,12 +86,15 @@ class CategoryController extends BaseController {
           },
         ],
       }).populate('user', 'firstName lastName profileImage company description');
+      // if there is no categories found
       if (!categories) {
         return res.status(404).json({ msg: Constants.messages.noCategoryFound });
       }
+      // create tags object which is most searched
       const searchTag = new SearchTag({
         tagName: search,
       });
+      // save tags into database
       await searchTag.save();
       return res.status(200).json({ msg: Constants.messages.success, categories: categories });
     } catch (err) {
@@ -140,11 +144,12 @@ class CategoryController extends BaseController {
 
   getSearchTags = async (req, res, next) => {
     try {
+      // See if user exist
       const userExist = await User.findOne({ _id: req.user.id });
       if (!userExist) {
 		  return res.status(400).json({ msg: Constants.messages.userNotFound });
       }
-      // find categorie and update
+      // find all tags based on how many times this word searched
       const searchTag = await SearchTag.aggregate([
         { $group: { _id: '$tagName', createdAt: { $last: '$createdAt' }, mostSearchedTags: { $sum: 1 } } },
         { $sort: { mostSearchedTags: -1 } },
@@ -160,8 +165,10 @@ class CategoryController extends BaseController {
   };
 
   addTags = async (req, res, next) => {
+    // extract tag name from body
     const { tagName } = req.body;
     try {
+      // See if user exist
       const userExist = await User.findOne({ _id: req.user.id });
       if (!userExist) {
 		  return res.status(400).json({ msg: Constants.messages.userNotFound });
@@ -170,6 +177,7 @@ class CategoryController extends BaseController {
         tagName,
         user: req.user.id,
       });
+      // save tag into database
       await tag.save();
       return res.status(200).json({ msg: Constants.messages.success });
     } catch (err) {
@@ -180,10 +188,12 @@ class CategoryController extends BaseController {
 
   getTags = async (req, res, next) => {
     try {
+      // See if user exist
       const userExist = await User.findOne({ _id: req.user.id });
       if (!userExist) {
 		  return res.status(400).json({ msg: Constants.messages.userNotFound });
       }
+      // return all tags added by admin
       const tags = await SearchTag.find({ user: req.user.id });
       return res.status(200).json({ msg: Constants.messages.success, tags: tags });
     } catch (err) {
@@ -192,7 +202,9 @@ class CategoryController extends BaseController {
     }
   };
 
+  // add supervision requests into database
   addSupervisionRequest = async (req, res, next) => {
+    // extract data from body
     const { name, email, highlightId, categoryId, user, imageLink, imageUser } = req.body;
     try {
 	 const supervisionRequest = await SupervisionRequest.findOne({ $and: [{ email: email }, { categoryId: categoryId }] });
@@ -206,6 +218,7 @@ class CategoryController extends BaseController {
           imageLink,
           imageUser,
         });
+        // save data into database
         await supervisionReq.save();
         return res.status(200).json({ msg: Constants.messages.supervisionReqSuccess });
       }
@@ -216,7 +229,7 @@ class CategoryController extends BaseController {
       next(err);
     }
   };
-
+  // get all opened supervision requests by admin
   getOpenedSupervisionRequests = async (req, res, next) => {
     try {
       // See if user exist
@@ -236,7 +249,7 @@ class CategoryController extends BaseController {
       next(err);
     }
   };
-
+  // get all resolved supervision requests by admin
   getResolvedSupervisionRequests = async (req, res, next) => {
     try {
       // See if user exist
@@ -255,7 +268,7 @@ class CategoryController extends BaseController {
       next(err);
     }
   };
-
+  // resolved supervision request status by admin
   resolveSupervisionRequestStatus = async (req, res, next) => {
 	  const { supervisionRequestId } = req.body;
 	  try {
@@ -278,7 +291,7 @@ class CategoryController extends BaseController {
 	    next(err);
 	  }
   };
-
+  // reopen supervision request status by admin
   reopenSupervisionRequestStatus = async (req, res, next) => {
 	  const { supervisionRequestId } = req.body;
 	  try {
@@ -301,26 +314,7 @@ class CategoryController extends BaseController {
 	    next(err);
 	  }
   };
-
-
-  getGroupedImages = async (req, res, next) => {
-    try {
-      // find categorie group based on location
-      const category = await Category.aggregate([
-        { $group: { _id: '$location', mostSearchedTags: { $sum: 1 } } },
-        { $sort: { mostSearchedTags: -1 } },
-        // { $unwind: '$location' },
-      ]);
-      if (!category) {
-        return res.status(404).json({ msg: Constants.messages.noCategoryFound });
-      }
-      return res.status(200).json({ msg: Constants.messages.success, category: category });
-    } catch (err) {
-      err.status = 400;
-      next(err);
-    }
-  };
-
+  // active user image by admin when he/she upload
   activeUserImage = async (req, res, next) => {
     // extract data from body
     const { categoryId, isActive } = req.body;
@@ -342,6 +336,7 @@ class CategoryController extends BaseController {
     }
   };
 
+  // get all active user images
   getActiveUserImages = async (req, res, next) => {
     try {
       const userExist = await User.findOne({ _id: req.user.id });
@@ -360,6 +355,7 @@ class CategoryController extends BaseController {
     }
   };
 
+  // update images count that how many times image viewed by user
   updateViewedCount = async (req, res, next) => {
     // extract data from body
     const { categoryId } = req.body;
@@ -377,12 +373,13 @@ class CategoryController extends BaseController {
     }
   };
 
+  // get all grouped images by location
   getPerspectiveImages = async (req, res, next) => {
     // extract data from body
     const { groupId } = req.body;
 
     try {
-      // find categorie and groupId
+      // find categorie by groupId
       const categorie = await Category.find({ $and: [{ isActive: 'active' }, { groupId: groupId }] }).populate('user');
       if (!categorie) {
         return res.status(404).json({ msg: Constants.messages.noCategoryFound });
@@ -394,6 +391,7 @@ class CategoryController extends BaseController {
     }
   };
 
+  // update download images count that how many times image downloaded by user
   updateDownloadCount = async (req, res, next) => {
     // extract data from body
     const { categoryId } = req.body;
@@ -410,7 +408,7 @@ class CategoryController extends BaseController {
       next(err);
     }
   };
-
+  // get images count by admin
   getUserImageCount = async (req, res, next) => {
     // extract data from body
     const { userId } = req.body;
@@ -423,16 +421,14 @@ class CategoryController extends BaseController {
 	  }
       // find categorie and update
       const categorie = await Category.find({ user: userId }).count();
-      // if (!categorie) {
-      //   return res.status(404).json({ msg: Constants.messages.noCategoryFound });
-      // }
+
       return res.status(200).json({ msg: Constants.messages.success, imageCount: categorie });
     } catch (err) {
       err.status = 400;
       next(err);
     }
   };
-
+  // get all active user images
   getUserInActiveImages = async (req, res, next) => {
     try {
       // See if user exist
@@ -442,16 +438,13 @@ class CategoryController extends BaseController {
 	  }
       // find categorie and update
       const category = await Category.find({ $and: [{ user: { $ne: req.user.id } }, { isActive: 'block' }] }).populate('user', 'firstName lastName profileImage description company city supervision');
-      // if (!categorie) {
-      //   return res.status(404).json({ msg: Constants.messages.noCategoryFound });
-      // }
       return res.status(200).json({ msg: Constants.messages.success, inActiveUserImages: category });
     } catch (err) {
       err.status = 400;
       next(err);
     }
   };
-
+  // get all user pending images
   getUserPendingImages = async (req, res, next) => {
     try {
       // See if user exist
@@ -461,9 +454,6 @@ class CategoryController extends BaseController {
 	  }
       // find categorie and update
       const category = await Category.find({ $and: [{ user: { $ne: req.user.id } }, { isActive: 'pending' }] }).populate('user', 'firstName lastName profileImage description company city supervision');
-      // if (!categorie) {
-      //   return res.status(404).json({ msg: Constants.messages.noCategoryFound });
-      // }
       return res.status(200).json({ msg: Constants.messages.success, pendingUserImages: category });
     } catch (err) {
       err.status = 400;
@@ -471,7 +461,7 @@ class CategoryController extends BaseController {
     }
   };
 
-
+  // get images viewed count by admin that how many times image viewed by user
   getViewedCount = async (req, res, next) => {
     // extract data from body
     const { categoryId } = req.body;
@@ -494,7 +484,7 @@ class CategoryController extends BaseController {
     }
   };
 
-
+  // update images download count that how many times image downloaded by user
   getDownloadCount = async (req, res, next) => {
     // extract data from body
     const { categoryId } = req.body;
@@ -505,7 +495,7 @@ class CategoryController extends BaseController {
 	  if (!user) {
         return res.status(400).json({ msg: Constants.messages.userNotFound });
 	  }
-      // find categorie and update
+      // find category by id
       const categorie = await Category.findById({ _id: categoryId }).select('downloadCount');
       if (!categorie) {
         return res.status(404).json({ msg: Constants.messages.noCategoryFound });
@@ -517,7 +507,7 @@ class CategoryController extends BaseController {
     }
   };
 
-
+  // get all newest  images based on its type like ( images, 360 images and hdr-spheres)
   getAllUserImagesBasedOnType = async (req, res, next) => {
 	    const { type } = req.body;
 	    try {
@@ -537,6 +527,26 @@ class CategoryController extends BaseController {
 	    }
   };
 
+  // get all oldest  images based on its type like ( images, 360 images and hdr-spheres)
+  getAllUserImagesBasedOnTypeOldest = async (req, res, next) => {
+    const { type } = req.body;
+    try {
+      const categories = await Category.find({
+        $and: [
+          { type: type },
+          { isActive: 'active' },
+        ],
+      }).sort({ createdAt: 1 }).populate('user', 'firstName lastName profileImage company description supervision');
+      if (!categories) {
+        return res.status(404).json({ msg: Constants.messages.noCategoryFound });
+      }
+      return res.status(200).json({ msg: Constants.messages.success, categories: categories });
+    } catch (err) {
+      err.status = 400;
+      next(err);
+    }
+  };
+    // get all images based on there status like ( active, block and pending)
     getAllStatusUserImagesBasedOnType = async (req, res, next) => {
 	    const { type } = req.body;
 	    try {
@@ -573,56 +583,6 @@ class CategoryController extends BaseController {
 	      next(err);
 	    }
 	  };
-
-  deleteDefaultCategory = async (req, res, next) => {
-    const { defaultCategoryId } = req.body;
-    try {
-	  // See if user exist
-	  const user = await User.findOne({ _id: req.user.id });
-	  if (!user) {
-        return res.status(400).json({ msg: Constants.messages.userNotFound });
-	  }
-
-	 const defaultCategory = await DefaultCategory.findByIdAndRemove({ _id: defaultCategoryId });
-	 if (!defaultCategory) {
-        return res.status(400).json({ msg: Constants.messages.noCategoryFound });
-	  }
-      return res.status(200).json({ msg: Constants.messages.defaultCategoryRemovedSuccess });
-    } catch (err) {
-      err.status = 400;
-      next(err);
-    }
-  };
-
-  updateDefaultCategory = async (req, res, next) => {
-    const { defaultCategoryId, title, description } = req.body;
-    try {
-	  // See if user exist
-	  const user = await User.findOne({ _id: req.user.id });
-	  if (!user) {
-        return res.status(400).json({ msg: Constants.messages.userNotFound });
-	  }
-	  const obj = {};
-	  if (!_.isEmpty(req.files)) {
-        obj['imageLink'] = `http://localhost:5000/public/users/defaultCategory/${req.files.imageLink[0].originalname}`;
-	  }
-	  if (title) {
-        obj['title'] = title;
-	  }
-
-	  if (description) {
-        obj['description'] = description;
-	  }
-	 const defaultCategory = await DefaultCategory.findByIdAndUpdate({ _id: defaultCategoryId }, { $set: obj }, { new: true });
-	 if (!defaultCategory) {
-        return res.status(400).json({ msg: Constants.messages.noCategoryFound });
-	  }
-      return res.status(200).json({ msg: Constants.messages.defaultCategoryUpdateSuccess });
-    } catch (err) {
-      err.status = 400;
-      next(err);
-    }
-  };
 }
 
 export default new CategoryController();

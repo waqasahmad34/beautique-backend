@@ -34,8 +34,10 @@ routes.post('/api/users/sendforgetPasswordEmail', UsersController.sendForgetPass
 routes.post('/api/users/forgetPassword/:userId/:token', UsersController.forgetPassword);
 routes.post('/api/users/getUserProfile', UsersController.getUserProfile);
 routes.post('/api/users/getUserProfileImages', UsersController.getUserProfileImages);
+routes.post('/api/users/getUserProfileImagesOldest', UsersController.getUserProfileImagesOldest);
 routes.post('/api/users/getUserImages', authenticate, UsersController.getUserImages);
 routes.get('/api/users/getAllowSupervisionUsers', UsersController.getAllowSupervisionUsers);
+routes.get('/api/users/getAllowSupervisionUsersOldest', UsersController.getAllowSupervisionUsersOldest);
 routes.post('/api/users/updateSupervision', authenticate, UsersController.updateSupervision);
 routes.post('/api/users/updateProfileBioData', authenticate, UsersController.updateProfileBioData);
 routes.post('/api/users/updateProfile', [authenticate, profile.fields( [
@@ -59,7 +61,6 @@ routes.post('/api/users/imageUpload', [authenticate, category.fields( [
   },
 ])], CategoryController.imageUpload);
 routes.post('/api/users/search', CategoryController.search);
-routes.get('/api/users/getGroupedImages', CategoryController.getGroupedImages);
 routes.post('/api/users/filter', CategoryController.filter);
 routes.post('/api/users/updateViewedCount', CategoryController.updateViewedCount);
 routes.post('/api/users/updateDownloadCount', CategoryController.updateDownloadCount);
@@ -72,6 +73,7 @@ routes.get('/api/users/getUserInActiveImages', [authenticate, adminAuth], Catego
 routes.get('/api/users/getUserPendingImages', [authenticate, adminAuth], CategoryController.getUserPendingImages);
 routes.get('/api/users/getActiveUserImages', [authenticate, adminAuth], CategoryController.getActiveUserImages);
 routes.post('/api/users/getAllUserImagesBasedOnType', CategoryController.getAllUserImagesBasedOnType);
+routes.post('/api/users/getAllUserImagesBasedOnTypeOldest', CategoryController.getAllUserImagesBasedOnTypeOldest);
 routes.post('/api/users/getAllStatusUserImagesBasedOnType', [authenticate, adminAuth], CategoryController.getAllStatusUserImagesBasedOnType);
 routes.post('/api/users/getPerspectiveImages', CategoryController.getPerspectiveImages);
 routes.post('/api/users/addSupervisionRequest', CategoryController.addSupervisionRequest);
@@ -83,8 +85,6 @@ routes.post('/api/users/reopenSupervisionRequestStatus', [authenticate, adminAut
 // Admin Api's
 routes.post('/api/users/sendRegistrationLink', [authenticate, adminAuth], UsersController.sendRegistrationEmail);
 routes.post('/api/users/accountAcceptReject', [authenticate, adminAuth], UsersController.accountAcceptReject);
-routes.post('/api/users/acceptAccount', [authenticate, adminAuth], UsersController.acceptAccount);
-routes.post('/api/users/rejectAccount', [authenticate, adminAuth], UsersController.rejectAccount);
 routes.get('/api/users/getActiveUsersList', [authenticate, adminAuth], UsersController.getActiveUsersList);
 routes.get('/api/users/getInActiveUsersList', [authenticate, adminAuth], UsersController.getInActiveUsersList);
 routes.post('/api/users/deleteUsers', [authenticate, adminAuth], UsersController.deleteUsers);
@@ -95,7 +95,6 @@ routes.post('/api/users/addTags', [authenticate, adminAuth], CategoryController.
 
 // ContactUs Api's
 routes.post('/api/users/addContactUs', ContactUsController.addContactUs);
-routes.post('/api/users/addPrivateContactUs', authenticate, ContactUsController.addPrivateContactUs);
 routes.post('/api/users/deleteContactUs', [authenticate, adminAuth], ContactUsController.deleteContactUs);
 routes.get('/api/users/getContactUsCount', [authenticate, adminAuth], ContactUsController.getContactUsCount);
 routes.get('/api/users/updateContactUsStats', ContactUsController.updateContactUsCount);
@@ -128,8 +127,6 @@ routes.get('/api/users/getHighlights', HighlightController.getHighlights);
 routes.post('/api/users/getHighlight', HighlightController.getHighlight);
 routes.post('/api/users/addHighlight', [authenticate, adminAuth], HighlightController.addHighlight);
 routes.post('/api/users/deleteHighlight', [authenticate, adminAuth], HighlightController.deleteHighlight);
-routes.post('/api/users/highlightSupervisionRequest', HighlightController.highlightSupervisionRequest);
-routes.post('/api/users/getHighlightSupervisionRequest', [authenticate, adminAuth], HighlightController.getHighlightSupervisionRequest);
 
 routes.use(errorHandler);
 

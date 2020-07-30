@@ -1,4 +1,5 @@
 /* eslint-disable linebreak-style */
+/* eslint-disable max-len */
 import path from 'path';
 import merge from 'lodash/merge';
 
@@ -101,7 +102,7 @@ const defaultConfig = {
 const environmentConfigs = {
   development: {
     mongo: {
-      uri: process.env.MONGO_URI || 'mongodb://localhost:27017/beautique_db',
+      uri: process.env.MONGO_URI || 'mongodb+srv://beautique:beautique@cluster0.qnzie.mongodb.net/beautique_db?retryWrites=true&w=majority',
     },
     security: {
       saltRounds: 4,
@@ -110,7 +111,7 @@ const environmentConfigs = {
   test: {
     port: 27017,
     mongo: {
-      uri: process.env.MONGO_URI || 'mongodb://localhost:27017/beautique_db',
+      uri: process.env.MONGO_URI || 'mongodb+srv://beautique:beautique@cluster0.qnzie.mongodb.net/beautique_db?retryWrites=true&w=majority',
     },
     security: {
       saltRounds: 4,
@@ -119,7 +120,7 @@ const environmentConfigs = {
   production: {
     mongo: {
       seed: false,
-      uri: process.env.MONGO_URI || 'mongodb://localhost:27017/beautique_db',
+      uri: process.env.MONGO_URI || 'mongodb+srv://beautique:beautique@cluster0.qnzie.mongodb.net/beautique_db?retryWrites=true&w=majority',
     },
   },
 };

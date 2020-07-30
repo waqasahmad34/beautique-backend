@@ -19,7 +19,10 @@ class ContactUsController extends BaseController {
 	  'message',
 	  'contactUsId',
 	];
+
+  // add contact us
   addContactUs = async (req, res, next) => {
+    // extract data from body
     const {
       firstName,
       lastName,
@@ -41,7 +44,7 @@ class ContactUsController extends BaseController {
         category,
         user,
 	  });
-
+      // save data into database
       await contactUs.save();
       await sendContactUsEmail(email, subject, message);
       return res.status(200).json({ msg: Constants.messages.contactUsAddedSuccess });
@@ -51,36 +54,7 @@ class ContactUsController extends BaseController {
     }
   };
 
-  addPrivateContactUs = async (req, res, next) => {
-    const {
-      name,
-      email,
-      message,
-      category,
-    } = req.body;
-    try {
-	  // See if user exist
-	  const userExist = await User.findOne({ _id: req.user.id });
-	  if (!userExist) {
-        return res.status(400).json({ msg: Constants.messages.userNotFound });
-	  }
-      const user = req.user.id;
-      const contactUs = new ContactUs({
-        name,
-        email,
-        message,
-        user,
-        category,
-      });
-
-      await contactUs.save();
-      return res.status(200).json({ msg: Constants.messages.contactUsAddedSuccess });
-    } catch (err) {
-      err.status = 400;
-      next(err);
-    }
-  };
-
+  // reopen contact us by admin
   reopenContactUsStatus = async (req, res, next) => {
 	  const { contactId } = req.body;
 	  try {
@@ -103,7 +77,7 @@ class ContactUsController extends BaseController {
 	    next(err);
 	  }
   };
-
+  // resolve contact us by admin
 	resolveContactUsStatus = async (req, res, next) => {
 	  const { contactId } = req.body;
 	  try {
@@ -127,7 +101,7 @@ class ContactUsController extends BaseController {
 	  }
 	};
 
-
+  // get count of contact us that how many times user clicked the button
   getContactUsCount = async (req, res, next) => {
     try {
       // See if user exist
@@ -147,6 +121,7 @@ class ContactUsController extends BaseController {
     }
   };
 
+  // update contact us count
   updateContactUsCount = async (req, res, next) => {
     try {
       const stats = await ContactUsStats.findOne({ });
@@ -169,7 +144,7 @@ class ContactUsController extends BaseController {
       next(err);
     }
   };
-
+  // delete contact us by admin
   deleteContactUs = async (req, res, next) => {
     const { contactUsId } = req.body;
     try {
@@ -190,7 +165,7 @@ class ContactUsController extends BaseController {
     }
   };
 
-
+  // get all contact us list by admin
   getContactUs = async (req, res, next) => {
     const { contactUsId } = req.body;
     try {
@@ -211,6 +186,7 @@ class ContactUsController extends BaseController {
     }
   };
 
+  // get all opened contact us list by admin
   getOpenedContactUs = async (req, res, next) => {
     try {
 	  // See if user exist
@@ -229,7 +205,7 @@ class ContactUsController extends BaseController {
       next(err);
     }
   };
-
+  // get all resolved contact us list by admin
   getResolvedContactUs = async (req, res, next) => {
     try {
 	  // See if user exist

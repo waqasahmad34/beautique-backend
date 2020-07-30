@@ -30,7 +30,6 @@ const highlightSchema = new Schema({
       },
     },
   ],
-  supervisionRequest: [String],
   createdAt: {
     type: Date,
     default: new Date(),

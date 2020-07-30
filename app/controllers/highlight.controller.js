@@ -19,6 +19,8 @@ class HighlightController extends BaseController {
 	  'title',
 	  'highlightId',
 	];
+
+  // add highlights by admin
   addHighlight = async (req, res, next) => {
     const {
 	  title,
@@ -26,26 +28,29 @@ class HighlightController extends BaseController {
       user,
     } = req.body;
     try {
+      // highlight images should be 4 not more than that
       const threshold = 5;
       if (images.length >= threshold) {
         return res.status(400).json({ msg: Constants.messages.highlightImagesCheck });
       }
+      // all highlight images should belong to one user
       const img = images.find( (image) => image.userId !== user);
       if (img) {
         return res.status(400).json({ msg: Constants.messages.highlightImagesBelongedCheck, matchImage: img });
       }
+      // see if user exist
       const reqUser = await User.findById({ _id: req.user.id });
 	    if (!reqUser) {
 	      return res.status(400).json({ msg: Constants.messages.userNotFound });
       }
 
       const highlightCount = await Highlight.find({}).count();
+      // highlight should be 3 not more than that
       if (highlightCount === 3) {
         const highlightDate = await Highlight.find({}).select('createdAt').sort({ createdAt: 1 });
         const updateHighlight = await Highlight.findByIdAndUpdate({ _id: highlightDate[0]._id }, { $set: { title, images, user, createdAt: new Date() } }, { new: true });
         return res.status(200).json({ msg: Constants.messages.highlightAddedSuccess });
       } else {
-        console.log('create new');
         const isActive = true;
         const highlight = new Highlight({
           title,
@@ -61,15 +66,9 @@ class HighlightController extends BaseController {
       next(err);
     }
   };
-
+  // get all highlights
   getHighlights = async (req, res, next) => {
     try {
-	  // See if user exist
-      //   const user = await User.findOne({ _id: req.user.id });
-      //   if (!user) {
-    //     return res.status(400).json({ msg: Constants.messages.userNotFound });
-      //   }
-
 	 const highlights = await Highlight.find({ isActive: true }).populate('user', '-password');
 	 if (!highlights) {
         return res.status(400).json({ msg: Constants.messages.highlightNotFound });
@@ -81,7 +80,7 @@ class HighlightController extends BaseController {
     }
   };
 
-
+  // get a single highlight detail
   getHighlight = async (req, res, next) => {
     const { highlightId } = req.body;
     try {
@@ -96,51 +95,7 @@ class HighlightController extends BaseController {
     }
   };
 
-  highlightSupervisionRequest = async (req, res, next) => {
-    const { email, highlightId } = req.body;
-    try {
-	 const highlight = await Highlight.findOne({ _id: highlightId }).select('supervisionRequest');
-	 if (!highlight) {
-        return res.status(400).json({ msg: Constants.messages.highlightNotFound });
-      }
-      if (highlight.supervisionRequest.length === 0) {
-        highlight.supervisionRequest.push(email);
-        await highlight.save();
-        return res.status(200).json({ msg: Constants.messages.supervisionReqSuccess });
-      } else {
-        const request = highlight.supervisionRequest.find( (req) => req === email );
-        if (!request) {
-          highlight.supervisionRequest.push(email);
-          await highlight.save();
-          return res.status(200).json({ msg: Constants.messages.supervisionReqSuccess });
-        }
-        return res.status(200).json({ msg: Constants.messages.supervisionReqFail });
-      }
-    } catch (err) {
-      err.status = 400;
-      next(err);
-    }
-  };
-
-  getHighlightSupervisionRequest = async (req, res, next) => {
-    const { highlightId } = req.body;
-    try {
-    	  // See if user exist
-      const user = await User.findOne({ _id: req.user.id });
-      if (!user) {
-        return res.status(400).json({ msg: Constants.messages.userNotFound });
-      }
-	 const highlight = await Highlight.findOne({ _id: highlightId }).select('supervisionRequest');
-	 if (!highlight) {
-        return res.status(400).json({ msg: Constants.messages.highlightNotFound });
-      }
-      return res.status(200).json({ msg: Constants.messages.success, highlightSupervisionReq: highlight.supervisionRequest });
-    } catch (err) {
-      err.status = 400;
-      next(err);
-    }
-  };
-
+  // delete highlight by admin
   deleteHighlight = async (req, res, next) => {
     const { highlightId } = req.body;
     try {
@@ -149,7 +104,7 @@ class HighlightController extends BaseController {
 	  if (!user) {
         return res.status(400).json({ msg: Constants.messages.userNotFound });
 	  }
-
+      // removed highlight ny its id
 	 const highlight = await Highlight.findByIdAndRemove({ _id: highlightId });
 	 if (!highlight) {
         return res.status(400).json({ msg: Constants.messages.highlightNotFound });

@@ -17,6 +17,7 @@ class DefaultCategoryController extends BaseController {
 	  'defaultCategoryId',
 	  'description',
 	];
+  // add default categories by admin like (images, 360 images, and hdr-spheres)
   addDefaultCategory = async (req, res, next) => {
     const {
 	  title,
@@ -29,6 +30,7 @@ class DefaultCategoryController extends BaseController {
 	  if (!user) {
         return res.status(400).json({ msg: Constants.messages.userNotFound });
       }
+      // not more than 3 default categories should be created
       const treshold = 3;
       const categoryCheck = await DefaultCategory.find({ }).count();
 	  if (categoryCheck === treshold) {
@@ -50,10 +52,9 @@ class DefaultCategoryController extends BaseController {
       next(err);
     }
   };
-
+  // get all default categories
   getDefaultCategories = async (req, res, next) => {
     try {
-	  // See if user exist
 	 const defaultCategories = await DefaultCategory.find({ });
 	 if (!defaultCategories) {
         return res.status(400).json({ msg: Constants.messages.noCategoryFound });
@@ -64,7 +65,7 @@ class DefaultCategoryController extends BaseController {
       next(err);
     }
   };
-
+  // delete default category by admin
   deleteDefaultCategory = async (req, res, next) => {
     const { defaultCategoryId } = req.body;
     try {
@@ -85,6 +86,7 @@ class DefaultCategoryController extends BaseController {
     }
   };
 
+  // update Default Category by admin
   updateDefaultCategory = async (req, res, next) => {
     const { defaultCategoryId, title, description } = req.body;
     try {
