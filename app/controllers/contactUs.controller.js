@@ -14,15 +14,21 @@ import _ from 'lodash';
 
 class ContactUsController extends BaseController {
 	whitelist = [
-	  'name',
+	  'firstName',
+	  'lastName',
+	  'phoneNumber',
+	  'subject',
 	  'email',
 	  'message',
+	  'category',
+	  'user',
 	  'contactUsId',
 	];
 
   // add contact us
   addContactUs = async (req, res, next) => {
     // extract data from body
+    const params = this.filterParams(req.body, this.whitelist);
     const {
       firstName,
       lastName,
@@ -33,16 +39,11 @@ class ContactUsController extends BaseController {
       category,
       user,
     } = req.body;
+    params['user'] === '' ? delete params['user'] : params;
+    params['category'] === '' ? delete params['category'] : params;
     try {
 	 const contactUs = new ContactUs({
-        firstName,
-        lastName,
-        subject,
-        phoneNumber,
-        email,
-        message,
-        category,
-        user,
+        ...params,
 	  });
       // save data into database
       await contactUs.save();

@@ -1,5 +1,4 @@
 /* eslint-disable linebreak-style */
-/* eslint-disable max-len */
 import path from 'path';
 import merge from 'lodash/merge';
 
@@ -64,8 +63,8 @@ const defaultConfig = {
     accountAcceptSuccess: 'Account Accepted Successfully!',
     accountRejectedSuccess: 'Account Blocked Successfully!',
     success: 'success',
-    email: 'myguardiansixtesting@gmail.com',
-    password: 'myguardiansix6',
+    email: 'havea@goodmeeting.today',
+    password: 'S4v3T1m3',
     contactUsAddedSuccess: 'Contacted Successfully!',
     contactUsRemovedSuccess: 'Contact Us Removed Successfully!',
     contactUsNotFound: 'Contact Us Not Found!',
@@ -93,8 +92,8 @@ const defaultConfig = {
     paypalClientId: 'Ads_PX1qhMjgBBOvBcz-zBQ24GB_qrZm6xS4FWvS0NEjwUY07IAGbO5FotIl4m75OoR6jJjIpn97WjFj',
     paypalClientSecret: 'EPswChI9g19ivu_EQFj5VbOspxZZ8yE4KhwnfkVAXaDCNqakYLhtdG22j6jx3w-wZByLNXkdXbTDceGk',
     dataSecret: 'data-secret-key-is-here-euy26eviy923',
-    developmentLink: 'http://localhost:3000',
-    productionLink: 'http://localhost:3000',
+    productionLinkFrontend: 'https://master.dnbp360m4h2ha.amplifyapp.com/',
+    productionLink: 'https://d1enl2tjj7x5i0.cloudfront.net/',
   },
 };
 
@@ -120,7 +119,7 @@ const environmentConfigs = {
   production: {
     mongo: {
       seed: false,
-      uri: process.env.MONGO_URI || 'mongodb+srv://beautique:beautique@cluster0.qnzie.mongodb.net/beautique_db?retryWrites=true&w=majority',
+      uri: process.env.MONGO_URI,
     },
   },
 };

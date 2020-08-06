@@ -12,9 +12,11 @@ const categorySchema = new Schema({
   },
   location: {
     type: String,
+    required: [true, 'Location is required'],
   },
   groupId: {
     type: String,
+    required: [true, 'Group is required'],
   },
   supervision: {
     type: Boolean,
@@ -28,9 +30,11 @@ const categorySchema = new Schema({
   },
   color: {
     type: String,
+    required: [true, 'Color is required'],
   },
   imageLink: {
     type: String,
+    required: [true, 'Image is required'],
   },
   user: {
     type: Schema.Types.ObjectId,
@@ -49,9 +53,11 @@ const categorySchema = new Schema({
   },
   format: {
     type: String,
+    required: [true, 'Format is required'],
   },
   imageStyle: {
     type: String,
+    required: [true, 'Image Style is required'],
   },
   isActive: {
     type: String,

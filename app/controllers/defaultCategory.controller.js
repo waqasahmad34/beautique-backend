@@ -9,6 +9,7 @@ import User from '../models/user';
 import DefaultCategory from '../models/defaultCategory';
 import Constants from '../config/constants';
 import _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 class DefaultCategoryController extends BaseController {
 	whitelist = [
@@ -30,13 +31,13 @@ class DefaultCategoryController extends BaseController {
 	  if (!user) {
         return res.status(400).json({ msg: Constants.messages.userNotFound });
       }
-      // not more than 3 default categories should be created
+      // not more than 3 default categories should be createdd
       const treshold = 3;
       const categoryCheck = await DefaultCategory.find({ }).count();
 	  if (categoryCheck === treshold) {
         return res.status(400).json({ msg: 'Cannot Add Category More Than 3!' });
 	  } else {
-        const imageLink = `http://localhost:5000/public/users/defaultCategory/${req.files.imageLink[0].originalname}`;
+        const imageLink = `${req.files.imageLink[0].originalname}`;
         const defaultCategory = new DefaultCategory({
           title: title,
           description: description,
@@ -97,7 +98,7 @@ class DefaultCategoryController extends BaseController {
 	  }
 	  const obj = {};
 	  if (!_.isEmpty(req.files)) {
-        obj['imageLink'] = `http://localhost:5000/public/users/defaultCategory/${req.files.imageLink[0].originalname}`;
+        obj['imageLink'] = `${req.files.imageLink[0].originalname}`;
 	  }
 	  if (title) {
         obj['title'] = title;

@@ -3,6 +3,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 
 import nodemailer from 'nodemailer';
+import Constants from '../config/constants';
 import { sendPasswordResetEmail, sendRegistrationEmail, sendContactUsEmailTemplate } from './emails';
 
 export const sendResetPassEmail = (user, link) => {
@@ -10,8 +11,8 @@ export const sendResetPassEmail = (user, link) => {
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-      user: 'myguardiansixtesting@gmail.com', // generated ethereal user
-      pass: 'myguardiansix6', // generated ethereal password
+      user: Constants.messages.email,
+      pass: Constants.messages.password,
     },
   });
 
@@ -39,8 +40,8 @@ export const sendRegistrationLinkEmail = (email, link) => {
   const transporter = nodemailer.createTransport({
 	  service: 'Gmail',
 	  auth: {
-      user: 'myguardiansixtesting@gmail.com', // generated ethereal user
-      pass: 'myguardiansix6', // generated ethereal password
+      user: Constants.messages.email,
+      pass: Constants.messages.password,
 	  },
   });
 
@@ -68,8 +69,8 @@ export const sendContactUsEmail = (email, subject, message) => {
   const transporter = nodemailer.createTransport({
 	  service: 'Gmail',
 	  auth: {
-      user: 'myguardiansixtesting@gmail.com', // generated ethereal user
-      pass: 'myguardiansix6', // generated ethereal password
+      user: Constants.messages.email,
+      pass: Constants.messages.password,
 	  },
   });
 

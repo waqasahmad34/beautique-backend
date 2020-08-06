@@ -14,6 +14,7 @@ import bcrypt from 'bcryptjs';
 import Constants from '../config/constants';
 import { sendResetPassEmail, sendRegistrationLinkEmail } from '../lib/util';
 import _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 class UsersController extends BaseController {
 	whitelist = [
@@ -85,8 +86,8 @@ class UsersController extends BaseController {
 	        // Encrypt password
 	        const salt = await bcrypt.genSalt(10);
 	  	  user.password = await bcrypt.hash(password, salt);
-	  	  user.profileImage = `http://localhost:5000/public/users/profile/${req.files.profileImage[0].originalname}`;
-	  	  user.titleImage = `http://localhost:5000/public/users/profile/${req.files.titleImage[0].originalname}`;
+	  	  user.profileImage = `${req.files.profileImage[0].originalname}`;
+	  	  user.titleImage = `${req.files.titleImage[0].originalname}`;
 	  	  await user.save();
 	        // Return jsonwebtoken
 
@@ -126,7 +127,6 @@ class UsersController extends BaseController {
 	// login user into the system
 	login = async (req, res, next) => {
 	  const { email, password } = req.body;
-
 	  try {
 	    // See if user exist with email
 	    const user = await User.findOne({ email });
@@ -174,7 +174,7 @@ class UsersController extends BaseController {
 	    if (!user) {
 	      return res.status(404).json({ msg: Constants.messages.userNotFound });
 	    }
-	    user.profileImage = `http://localhost:5000/public/users/profile/${req.files.profileImage[0].originalname}`;
+	    user.profileImage = `${req.files.profileImage[0].originalname}`;
 	    await user.save();
 	    return res.status(200).json({ msg: 'Profile Uploaded Successfully!', link: user.profileImage });
 	  } catch (err) {
@@ -224,7 +224,7 @@ class UsersController extends BaseController {
 		  if (!user) {
 	      return res.status(404).json({ msg: Constants.messages.userNotFound });
 		  }
-		  user.titleImage = `http://localhost:5000/public/users/profile/${req.files.titleImage[0].originalname}`;
+		  user.titleImage = `${req.files.titleImage[0].originalname}`;
 
 	    await user.save();
 	    return res.status(200).json({ msg: 'Cover Uploaded Successfully!', link: user.titleImage });
@@ -247,7 +247,7 @@ class UsersController extends BaseController {
 	    const token = jwt.sign(payload, Constants.security.sessionSecret, {
 	      expiresIn: '2m', // 2 minutes
 	    });
-	    const link = `http://localhost:3000/reset-password/${user._id}/${token}`;
+	    const link = `${Constants.messages.productionLinkFrontend}reset-password/${user._id}/${token}`;
 	    await sendResetPassEmail(user, link);
 	    return res.status(200).json({ msg: 'Email Sent!' });
 	  } catch (err) {
@@ -313,7 +313,7 @@ class UsersController extends BaseController {
 	};
 	// get user profile data
 	getUserProfile = async (req, res, next) => {
-	  const { userId } = req.body;
+	  const { userId } = req.params;
 	  try {
 	    const user = await User.findById({ _id: userId }).select('-password');
 	    if (!user) {
@@ -432,8 +432,8 @@ class UsersController extends BaseController {
 	  };
 	// get users profile images
 	getUserProfileImages = async (req, res, next) => {
-	  // extract data from data
-	    const { userId, type } = req.body;
+	  // extract data from params
+	  const { userId, type } = req.params;
 	    try {
 	        const user = await User.findById({ _id: userId });
 	    if (!user) {
@@ -458,8 +458,7 @@ class UsersController extends BaseController {
 
 	  // get all user oldest profile images
 	  getUserProfileImagesOldest = async (req, res, next) => {
-	    // remove subtype like nature etc
-		  const { userId, type } = req.body;
+		  const { userId, type } = req.params;
 		  try {
 			  const user = await User.findById({ _id: userId });
 		  if (!user) {
@@ -491,11 +490,11 @@ class UsersController extends BaseController {
       if (!user) {
 		  return res.status(400).json({ msg: Constants.messages.userNotFound });
       }
-	  const payload = { id: email };
+	  const payload = { id: email.toLowerCase() };
 	  const token = jwt.sign(payload, Constants.security.sessionSecret, {
         expiresIn: '24h', // 24 hour
 	  });
-	  const link = `http://localhost:3000/register/${token}`;
+	  const link = `${Constants.messages.productionLinkFrontend}register/${token}`;
 	  await sendRegistrationLinkEmail(email, link);
 	  return res.status(200).json({ msg: 'Email Sent!' });
     } catch (err) {

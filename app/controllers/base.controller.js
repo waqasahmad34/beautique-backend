@@ -12,6 +12,11 @@ class BaseController {
     return filtered;
   }
 
+
+  parserBody(obj) {
+    return JSON.parse(Object.keys(obj)[0]);
+  }
+
   formatApiError(err) {
     if (!err) {
       // eslint-disable-next-line no-console

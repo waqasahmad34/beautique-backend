@@ -18,6 +18,8 @@ app.use(helmet());
 // Enable CORS with various options
 // https://github.com/expressjs/cors
 app.use(cors());
+app.options('*', cors());
+
 
 // Request logger
 // https://github.com/expressjs/morgan

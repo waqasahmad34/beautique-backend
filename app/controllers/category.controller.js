@@ -12,6 +12,7 @@ import SupervisionRequest from '../models/supervisionRequest';
 import SearchTag from '../models/searchTag';
 import Constants from '../config/constants';
 import sizeOf from 'image-size';
+import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 
 class CategoryController extends BaseController {
@@ -30,6 +31,11 @@ class CategoryController extends BaseController {
 	  'imageLink',
 	  'supervision',
 	  'groupId',
+	  'email',
+	  'highlightId',
+	  'imageUser',
+	  'user',
+
 	];
   imageUpload = async (req, res, next) => {
     // filter data of whitelist with body
@@ -40,8 +46,8 @@ class CategoryController extends BaseController {
 	  if (!user) {
         return res.status(400).json({ msg: Constants.messages.userNotFound });
       }
-	  params['imageLink'] = `http://localhost:5000/public/users/category/${req.files.imageLink[0].originalname}`;
-      const dimensions = sizeOf(`app/public/users/category/${req.files.imageLink[0].originalname}`);
+	  params['imageLink'] = `${req.files.imageLink[0].originalname}`;
+      const dimensions = sizeOf(`app/public/users/category/${params['imageLink']}`);
       params['resolution'] = Math.round((dimensions.width*dimensions.height) / 1000000);
       params['user'] = req.user.id;
       params['format'] = req.body.type;
@@ -164,6 +170,46 @@ class CategoryController extends BaseController {
     }
   };
 
+  removeTag = async (req, res, next) => {
+    // extract tag id from body
+    const { tagId } = req.body;
+    try {
+      // See if user exist
+      const userExist = await User.findOne({ _id: req.user.id });
+      if (!userExist) {
+		  return res.status(400).json({ msg: Constants.messages.userNotFound });
+      }
+      const tag = await SearchTag.findByIdAndRemove({ _id: tagId });
+      if (!tag) {
+        return res.status(400).json({ msg: 'Tag Not Foundd!' });
+      }
+      return res.status(200).json({ msg: Constants.messages.success });
+    } catch (err) {
+      err.status = 400;
+      next(err);
+    }
+  };
+
+  updateTag = async (req, res, next) => {
+    // extract tag id from body
+    const { tagId, tagName } = req.body;
+    try {
+      // See if user exist
+      const userExist = await User.findOne({ _id: req.user.id });
+      if (!userExist) {
+		  return res.status(400).json({ msg: Constants.messages.userNotFound });
+      }
+      const tag = await SearchTag.findByIdAndUpdate({ _id: tagId }, { $set: { tagName: tagName } }, { new: true });
+      if (!tag) {
+        return res.status(400).json({ msg: 'Tag Not Foundd!' });
+      }
+      return res.status(200).json({ msg: Constants.messages.success });
+    } catch (err) {
+      err.status = 400;
+      next(err);
+    }
+  };
+
   addTags = async (req, res, next) => {
     // extract tag name from body
     const { tagName } = req.body;
@@ -205,18 +251,14 @@ class CategoryController extends BaseController {
   // add supervision requests into database
   addSupervisionRequest = async (req, res, next) => {
     // extract data from body
+    const params = this.filterParams(req.body, this.whitelist);
     const { name, email, highlightId, categoryId, user, imageLink, imageUser } = req.body;
+    params['user'] === '' ? delete params['user'] : params;
     try {
 	 const supervisionRequest = await SupervisionRequest.findOne({ $and: [{ email: email }, { categoryId: categoryId }] });
 	 if (!supervisionRequest) {
         const supervisionReq = new SupervisionRequest({
-          name,
-          email,
-          highlightId,
-          user,
-          categoryId,
-          imageLink,
-          imageUser,
+          ...params,
         });
         // save data into database
         await supervisionReq.save();
@@ -509,7 +551,7 @@ class CategoryController extends BaseController {
 
   // get all newest  images based on its type like ( images, 360 images and hdr-spheres)
   getAllUserImagesBasedOnType = async (req, res, next) => {
-	    const { type } = req.body;
+    const { type } = req.params;
 	    try {
 	    const categories = await Category.find({
 	      $and: [
@@ -529,7 +571,7 @@ class CategoryController extends BaseController {
 
   // get all oldest  images based on its type like ( images, 360 images and hdr-spheres)
   getAllUserImagesBasedOnTypeOldest = async (req, res, next) => {
-    const { type } = req.body;
+    const { type } = req.params;
     try {
       const categories = await Category.find({
         $and: [

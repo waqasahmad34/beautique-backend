@@ -32,9 +32,9 @@ routes.post('/api/users/login', UsersController.login);
 routes.post('/api/users/resetPassword', authenticate, UsersController.resetPassword);
 routes.post('/api/users/sendforgetPasswordEmail', UsersController.sendForgetPassEmail);
 routes.post('/api/users/forgetPassword/:userId/:token', UsersController.forgetPassword);
-routes.post('/api/users/getUserProfile', UsersController.getUserProfile);
-routes.post('/api/users/getUserProfileImages', UsersController.getUserProfileImages);
-routes.post('/api/users/getUserProfileImagesOldest', UsersController.getUserProfileImagesOldest);
+routes.get('/api/users/getUserProfile/:userId', UsersController.getUserProfile);
+routes.get('/api/users/getUserProfileImages/:userId/:type', UsersController.getUserProfileImages);
+routes.get('/api/users/getUserProfileImagesOldest/:userId/:type', UsersController.getUserProfileImagesOldest);
 routes.post('/api/users/getUserImages', authenticate, UsersController.getUserImages);
 routes.get('/api/users/getAllowSupervisionUsers', UsersController.getAllowSupervisionUsers);
 routes.get('/api/users/getAllowSupervisionUsersOldest', UsersController.getAllowSupervisionUsersOldest);
@@ -72,8 +72,8 @@ routes.post('/api/users/activeUserImage', [authenticate, adminAuth], CategoryCon
 routes.get('/api/users/getUserInActiveImages', [authenticate, adminAuth], CategoryController.getUserInActiveImages);
 routes.get('/api/users/getUserPendingImages', [authenticate, adminAuth], CategoryController.getUserPendingImages);
 routes.get('/api/users/getActiveUserImages', [authenticate, adminAuth], CategoryController.getActiveUserImages);
-routes.post('/api/users/getAllUserImagesBasedOnType', CategoryController.getAllUserImagesBasedOnType);
-routes.post('/api/users/getAllUserImagesBasedOnTypeOldest', CategoryController.getAllUserImagesBasedOnTypeOldest);
+routes.get('/api/users/getAllUserImagesBasedOnType/:type', CategoryController.getAllUserImagesBasedOnType);
+routes.get('/api/users/getAllUserImagesBasedOnTypeOldest/:type', CategoryController.getAllUserImagesBasedOnTypeOldest);
 routes.post('/api/users/getAllStatusUserImagesBasedOnType', [authenticate, adminAuth], CategoryController.getAllStatusUserImagesBasedOnType);
 routes.post('/api/users/getPerspectiveImages', CategoryController.getPerspectiveImages);
 routes.post('/api/users/addSupervisionRequest', CategoryController.addSupervisionRequest);
@@ -91,6 +91,8 @@ routes.post('/api/users/deleteUsers', [authenticate, adminAuth], UsersController
 routes.get('/api/users/stats', [authenticate, adminAuth], UsersController.adminStats);
 routes.get('/api/users/getTags', [authenticate, adminAuth], CategoryController.getTags);
 routes.post('/api/users/addTags', [authenticate, adminAuth], CategoryController.addTags);
+routes.post('/api/users/removeTag', [authenticate, adminAuth], CategoryController.removeTag);
+routes.post('/api/users/updateTag', [authenticate, adminAuth], CategoryController.updateTag);
 
 
 // ContactUs Api's
@@ -121,7 +123,9 @@ routes.post('/api/users/updateDefaultCategory', [authenticate, adminAuth, defaul
 ])], DefaultCategoryController.updateDefaultCategory);
 routes.get('/api/users/getDefaultCategories', DefaultCategoryController.getDefaultCategories);
 
-
+routes.get('/test', (req, res) => {
+  res.json({ message: 'hello code deplooyed' });
+});
 // Admin Highlight Api's
 routes.get('/api/users/getHighlights', HighlightController.getHighlights);
 routes.post('/api/users/getHighlight', HighlightController.getHighlight);
