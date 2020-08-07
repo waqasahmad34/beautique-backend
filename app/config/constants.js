@@ -92,7 +92,7 @@ const defaultConfig = {
     paypalClientId: 'Ads_PX1qhMjgBBOvBcz-zBQ24GB_qrZm6xS4FWvS0NEjwUY07IAGbO5FotIl4m75OoR6jJjIpn97WjFj',
     paypalClientSecret: 'EPswChI9g19ivu_EQFj5VbOspxZZ8yE4KhwnfkVAXaDCNqakYLhtdG22j6jx3w-wZByLNXkdXbTDceGk',
     dataSecret: 'data-secret-key-is-here-euy26eviy923',
-    productionLinkFrontend: 'https://master.dnbp360m4h2ha.amplifyapp.com/',
+    productionLinkFrontend: 'http://ec2-13-52-103-132.us-west-1.compute.amazonaws.com:3000/',
     productionLink: 'https://d1enl2tjj7x5i0.cloudfront.net/',
   },
 };
