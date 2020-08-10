@@ -37,7 +37,7 @@ class DefaultCategoryController extends BaseController {
 	  if (categoryCheck === treshold) {
         return res.status(400).json({ msg: 'Cannot Add Category More Than 3!' });
 	  } else {
-        const imageLink = `${req.files.imageLink[0].originalname}`;
+        const imageLink = `${req.files.imageLink[0].filename}`;
         const defaultCategory = new DefaultCategory({
           title: title,
           description: description,
@@ -98,7 +98,7 @@ class DefaultCategoryController extends BaseController {
 	  }
 	  const obj = {};
 	  if (!_.isEmpty(req.files)) {
-        obj['imageLink'] = `${req.files.imageLink[0].originalname}`;
+        obj['imageLink'] = `${req.files.imageLink[0].filename}`;
 	  }
 	  if (title) {
         obj['title'] = title;

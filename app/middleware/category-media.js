@@ -5,8 +5,8 @@ const storage = multer.diskStorage({
   destination: function(req, file, cb) {
     cb(null, 'app/public/users/category');
   },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
+  filename: function(req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now() + '.jpg');
   },
 });
 const category = multer({ storage: storage });

@@ -86,8 +86,8 @@ class UsersController extends BaseController {
 	        // Encrypt password
 	        const salt = await bcrypt.genSalt(10);
 	  	  user.password = await bcrypt.hash(password, salt);
-	  	  user.profileImage = `${req.files.profileImage[0].originalname}`;
-	  	  user.titleImage = `${req.files.titleImage[0].originalname}`;
+	  	  user.profileImage = `${req.files.profileImage[0].filename}`;
+	  	  user.titleImage = `${req.files.titleImage[0].filename}`;
 	  	  await user.save();
 	        // Return jsonwebtoken
 
@@ -174,7 +174,7 @@ class UsersController extends BaseController {
 	    if (!user) {
 	      return res.status(404).json({ msg: Constants.messages.userNotFound });
 	    }
-	    user.profileImage = `${req.files.profileImage[0].originalname}`;
+	    user.profileImage = `${req.files.profileImage[0].filename}`;
 	    await user.save();
 	    return res.status(200).json({ msg: 'Profile Uploaded Successfully!', link: user.profileImage });
 	  } catch (err) {
@@ -224,7 +224,7 @@ class UsersController extends BaseController {
 		  if (!user) {
 	      return res.status(404).json({ msg: Constants.messages.userNotFound });
 		  }
-		  user.titleImage = `${req.files.titleImage[0].originalname}`;
+		  user.titleImage = `${req.files.titleImage[0].filename}`;
 
 	    await user.save();
 	    return res.status(200).json({ msg: 'Cover Uploaded Successfully!', link: user.titleImage });

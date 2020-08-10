@@ -124,7 +124,7 @@ routes.post('/api/users/updateDefaultCategory', [authenticate, adminAuth, defaul
 routes.get('/api/users/getDefaultCategories', DefaultCategoryController.getDefaultCategories);
 
 routes.get('/test', (req, res) => {
-  res.json({ message: 'hello code deplooyed' });
+  res.json({ message: 'hello code deplooyed change' });
 });
 // Admin Highlight Api's
 routes.get('/api/users/getHighlights', HighlightController.getHighlights);

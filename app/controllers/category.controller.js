@@ -46,7 +46,7 @@ class CategoryController extends BaseController {
 	  if (!user) {
         return res.status(400).json({ msg: Constants.messages.userNotFound });
       }
-	  params['imageLink'] = `${req.files.imageLink[0].originalname}`;
+	  params['imageLink'] = `${req.files.imageLink[0].filename}`;
       const dimensions = sizeOf(`app/public/users/category/${params['imageLink']}`);
       params['resolution'] = Math.round((dimensions.width*dimensions.height) / 1000000);
       params['user'] = req.user.id;
